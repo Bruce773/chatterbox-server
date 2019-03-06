@@ -1,6 +1,5 @@
 var Parse = {
-
-  server: 'http://127.0.0.1:3000/class/messages',
+  server: `http://127.0.0.1:3000/classes/messages`,
 
   create: function(message, successCB, errorCB = null) {
     $.ajax({
@@ -9,11 +8,12 @@ var Parse = {
       data: JSON.stringify(message),
       contentType: 'application/json',
       success: successCB,
-      error: errorCB || function(error) {
-        console.error('chatterbox: Failed to fetch messages', error);
-      }
+      error:
+        errorCB ||
+        function(error) {
+          console.error('chatterbox: Failed to fetch messages', error);
+        },
     });
-
   },
 
   readAll: function(successCB, errorCB = null) {
@@ -23,10 +23,11 @@ var Parse = {
       data: { order: '-createdAt' },
       contentType: 'application/json',
       success: successCB,
-      error: errorCB || function(error) {
-        console.error('chatterbox: Failed to fetch messages', error);
-      }
+      error:
+        errorCB ||
+        function(error) {
+          console.error('chatterbox: Failed to fetch messages', error);
+        },
     });
-  }
-
+  },
 };

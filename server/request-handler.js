@@ -27,7 +27,9 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  console.log('Serving request type ' + request.method + ' for url ' + request.url);
+  console.log(
+    'Serving request type ' + request.method + ' for url ' + request.url
+  );
 
   // The outgoing status.
   var statusCode = 200;
@@ -39,7 +41,30 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/plain';
+  headers['Content-Type'] = 'JSON';
+
+  request.on('data', function(chunk) {
+    console.log(chunk);
+  });
+
+  //? things to account for:
+  //! incorrect URL return a 404
+  if (request.url !== '/classes/messages') {
+    statusCode = 404;
+  } else {
+    //! correct URL:
+    if (request.method === 'GET') {
+      //! GET requests return our messages object set statusCode to 200
+      statusCode = 200;
+    } else if (request.method === 'POST') {
+      //! POST request add new data to our messages object set statusCode to 200
+      statusCode = 200;
+    }
+  }
+
+  if (request.method === 'OPTIONS') {
+    response.WriteHeader(http.StatusOK);
+  }
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
@@ -52,7 +77,13 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end('Hello, World!');
+
+  // response.end(`response ${Object.keys(response)}`);
+  response.end(
+    `response status code: ${response.statusCode} | request type: ${
+      request.method
+    } | request URL: ${request.url}`
+  );
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -68,7 +99,7 @@ var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'access-control-allow-headers': 'content-type, accept',
-  'access-control-max-age': 10 // Seconds.
+  'access-control-max-age': 10, // Seconds.
 };
 
 exports.requestHandler = requestHandler;
