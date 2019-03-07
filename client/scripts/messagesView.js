@@ -5,7 +5,7 @@ var MessagesView = {
   initialize: function() {
 
     MessagesView.$chats.on('click', '.username', MessagesView.handleClick);
-      },
+  },
 
   render: function() {
     MessagesView.$chats.html('');
@@ -26,6 +26,6 @@ var MessagesView = {
     if (username === undefined) { return; }
 
     Friends.toggleStatus(username, MessagesView.render);
-      }
+  }
 
 };
