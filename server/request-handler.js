@@ -42,7 +42,7 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'JSON';
+  headers['Content-Type'] = 'application/json';
 
   // if (request.method === 'OPTIONS') {
   //   response.writeHead(http.StatusOK);
@@ -50,7 +50,7 @@ var requestHandler = function(request, response) {
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
+
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -71,23 +71,29 @@ var requestHandler = function(request, response) {
   //! incorrect URL return a 404
   if (!request.url.includes('classes/messages')) {
     statusCode = 404;
+    response.writeHead(statusCode, headers);
   } else {
     //! correct URL:
     if (request.method === 'GET') {
       //! GET requests return our messages object set statusCode to 200
       statusCode = 200;
+      response.writeHead(statusCode, headers);
+
       // request.on('data', (chunk) => {
       //   return chunk;
       // });
     } else if (request.method === 'POST') {
       //! POST request add new data to our messages object set statusCode to 200
-      statusCode = 200;
+      statusCode = 201;
+      response.writeHead(statusCode, headers);
+
       // request.on('data', (chunk) => {
       //   console.log(chunk);
       // });
     }
   }
 
+  response.writeHead(statusCode, headers);
   const result = JSON.stringify({
     results: [
       {
@@ -95,8 +101,7 @@ var requestHandler = function(request, response) {
         roomname: 'TestRoomName',
         text: 'TestText!!',
       },
-    ],
-    method: request.method,
+    ]
   });
   response.end(result);
 };

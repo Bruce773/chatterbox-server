@@ -1,25 +1,42 @@
 var Rooms = {
-  $button: $('#rooms button'),
-  $select: $('#rooms select'),
 
-  render: _.template(`
-  <option class="rooms"><%- roomname %></option>
-`),
 
-  initialize: function() {
-    this.$button.on('click', this.add);
+  _data: new Set,
+
+  selected: 'lobby',
+
+  items: function() {
+    return _.chain([...Rooms._data]);
   },
 
-  add: function() {
-    // Add room name
-    const addRoomName = prompt('Add a room:');
-    $('#rooms select').append(Rooms.render({ roomname: addRoomName }));
-
-    // Select current room
-    $('#chats').empty();
-    $('#rooms select').val(addRoomName);
-
+  isSelected: function(roomname) {
+    return roomname === Rooms.selected ||
+           !roomname && Rooms.selected === 'lobby';
   },
 
+  add: function(room, callback = ()=>{}) {
+    Rooms._data.add(room);
+    Rooms.selected = room;
+    callback(Rooms.items());
+  },
+
+  update: function(messages, callback = ()=>{}) {
+    var length = Rooms._data.size;
+
+    _.chain(messages)
+      .pluck('roomname')
+      .uniq()
+      .each(room => Rooms._data.add(room));
+
+    if (Rooms.selected === null) {
+      // make the first room the default selected room
+      Rooms.selected = Rooms._data.values().next().value;
+    }
+
+    // only invoke the callback if something changed
+    if (Rooms._data.size !== length) {
+      callback(Rooms.items());
+    }
+  }
+  
 };
-
