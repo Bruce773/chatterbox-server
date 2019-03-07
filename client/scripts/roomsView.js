@@ -11,6 +11,7 @@ var RoomsView = {
   render: function() {
     const rooms = {};
     App.fetch((data) => {
+      console.log(data.results);
       // Add empty room
       this.renderRoom('');
 

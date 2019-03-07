@@ -11,6 +11,7 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var http = require('http');
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -43,28 +44,9 @@ var requestHandler = function(request, response) {
   // other than plain text, like JSON or HTML.
   headers['Content-Type'] = 'JSON';
 
-  request.on('data', function(chunk) {
-    console.log(chunk);
-  });
-
-  //? things to account for:
-  //! incorrect URL return a 404
-  if (request.url !== '/classes/messages') {
-    statusCode = 404;
-  } else {
-    //! correct URL:
-    if (request.method === 'GET') {
-      //! GET requests return our messages object set statusCode to 200
-      statusCode = 200;
-    } else if (request.method === 'POST') {
-      //! POST request add new data to our messages object set statusCode to 200
-      statusCode = 200;
-    }
-  }
-
-  if (request.method === 'OPTIONS') {
-    response.WriteHeader(http.StatusOK);
-  }
+  // if (request.method === 'OPTIONS') {
+  //   response.writeHead(http.StatusOK);
+  // }
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
@@ -79,11 +61,44 @@ var requestHandler = function(request, response) {
   // node to actually send all the data over to the client.
 
   // response.end(`response ${Object.keys(response)}`);
-  response.end(
-    `response status code: ${response.statusCode} | request type: ${
-      request.method
-    } | request URL: ${request.url}`
-  );
+  // response.end(
+  //   `response status code: ${response.statusCode} | request type: ${
+  //     request.method
+  //   } | request URL: ${request.url}`
+  // );
+
+  //? things to account for:
+  //! incorrect URL return a 404
+  if (!request.url.includes('classes/messages')) {
+    statusCode = 404;
+  } else {
+    //! correct URL:
+    if (request.method === 'GET') {
+      //! GET requests return our messages object set statusCode to 200
+      statusCode = 200;
+      // request.on('data', (chunk) => {
+      //   return chunk;
+      // });
+    } else if (request.method === 'POST') {
+      //! POST request add new data to our messages object set statusCode to 200
+      statusCode = 200;
+      // request.on('data', (chunk) => {
+      //   console.log(chunk);
+      // });
+    }
+  }
+
+  const result = JSON.stringify({
+    results: [
+      {
+        username: 'TestUserName',
+        roomname: 'TestRoomName',
+        text: 'TestText!!',
+      },
+    ],
+    method: request.method,
+  });
+  response.end(result);
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).

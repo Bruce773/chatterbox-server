@@ -20,7 +20,7 @@ var App = {
 
   fetch: function(cb = () => {}) {
     Parse.readAll(data => {
-      cb(data);
+      cb(JSON.parse(data));
     });
   },
 
