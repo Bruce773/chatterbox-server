@@ -12,6 +12,7 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 var http = require('http');
+const { Readable } = require('stream');
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -67,6 +68,19 @@ var requestHandler = function(request, response) {
   //   } | request URL: ${request.url}`
   // );
 
+  class ReadableStream extends Readable {
+    constructor(options) {
+      // Calls the stream.Readable(options) constructor
+      super(options);
+    }
+
+    read() {}
+
+    update() {}
+  }
+
+  const NodeStream = new ReadableStream();
+
   //? things to account for:
   //! incorrect URL return a 404
   if (!request.url.includes('classes/messages')) {
@@ -76,15 +90,16 @@ var requestHandler = function(request, response) {
     if (request.method === 'GET') {
       //! GET requests return our messages object set statusCode to 200
       statusCode = 200;
-      // request.on('data', (chunk) => {
-      //   return chunk;
-      // });
+      response.on('data', (chunk) => {
+        console.log(readable._read());
+      });
     } else if (request.method === 'POST') {
       //! POST request add new data to our messages object set statusCode to 200
       statusCode = 200;
-      // request.on('data', (chunk) => {
-      //   console.log(chunk);
-      // });
+      request.on('data', (chunk) => {
+        console.log(chunk.toString());
+        readable.push(chunk.toString());
+      });
     }
   }
 
