@@ -1,32 +1,31 @@
 var MessagesView = {
 
   $chats: $('#chats'),
-  $button: $('#rooms button'),
-  $select: $('#rooms select'),
 
   initialize: function() {
-    this.render();
-    this.$select.on('change', this.handleChange);
-  },
 
-  handleChange: (event) => {
-    $('#chats').empty();
-    MessagesView.render();
+    MessagesView.$chats.on('click', '.username', MessagesView.handleClick);
   },
 
   render: function() {
-    App.fetch((data) => {
-      for (let message of data.results) {
-        if (message.roomname === this.$select.val()) {
-          this.renderMessage(message);
-        }
-      }
-    });
+    MessagesView.$chats.html('');
+    Messages
+      .items()
+      .filter(message => Rooms.isSelected(message.roomname))
+      .each(message => MessagesView.renderMessage(message));
   },
 
   renderMessage: function(message) {
-    if (message.username !== undefined) {
-      this.$chats.append(MessageView.render(message));
-    }
+    var $message = MessageView.render(message);
+    MessagesView.$chats.prepend($message);
+  },
+
+  handleClick: function(event) {
+    // Get username from data attribute
+    var username = $(event.target).data('username');
+    if (username === undefined) { return; }
+
+    Friends.toggleStatus(username, MessagesView.render);
   }
+
 };

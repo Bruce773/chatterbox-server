@@ -1,17 +1,24 @@
 var Friends = {
-  initialize: function() {
-    this.toggleStatus();
+
+
+  _data: new Set,
+
+  items: function() {
+    return _.chain([...Friends._data]);
   },
 
-  toggleStatus: function() {
-    $('#chats').on('click', '.username', function(event) {
-      const friend = $(this).text();
-      const $users = $('#chats .chat .username');
-      for (let i = 0; i < $users.length; i++) {
-        if ($users[i].textContent === friend) {
-          $($users[i]).toggleClass('friend');
-        }
-      }
-    });
+  isFriend: function(name) {
+    return Friends._data.has(name);
+  },
+
+  toggleStatus: function(name, callback = ()=>{}) {
+    if (Friends._data.has(name)) {
+      Friends._data.delete(name);
+      callback(false);
+    } else {
+      Friends._data.add(name);
+      callback(true);
+    }
   }
+  
 };

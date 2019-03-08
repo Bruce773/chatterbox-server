@@ -4,29 +4,38 @@ var RoomsView = {
   $select: $('#rooms select'),
 
   initialize: function() {
-    this.render();
-    Rooms.initialize();
+
+    RoomsView.$select.on('change', RoomsView.handleChange);
+    RoomsView.$button.on('click', RoomsView.handleClick);
   },
 
   render: function() {
-    const rooms = {};
-    App.fetch((data) => {
-      console.log(data.results);
-      // Add empty room
-      this.renderRoom('');
 
-      // Add all other rooms
-      for (let room of data.results) {
-        if (rooms[room.roomname] === undefined && room.roomname) {
-          this.renderRoom(room.roomname);
-          rooms[room.roomname] = '';
-        }
-      }
-    });
+    RoomsView.$select.html('');
+    Rooms
+      .items()
+      .each(RoomsView.renderRoom);
+    RoomsView.$select.val(Rooms.selected);
   },
 
   renderRoom: function(roomname) {
-    this.$select.append(Rooms.render({ roomname }));
+    var $option = $('<option>').val(roomname).text(roomname);
+    RoomsView.$select.append($option);
   },
-};
 
+  handleChange: function(event) {
+    Rooms.selected = RoomsView.$select.val();
+    MessagesView.render();
+  },
+
+  handleClick: function(event) {
+    var roomname = prompt('Enter room name');
+    if (roomname) {
+      Rooms.add(roomname, () => {
+        RoomsView.render();
+        MessagesView.render();
+      });
+    }
+  }
+
+};

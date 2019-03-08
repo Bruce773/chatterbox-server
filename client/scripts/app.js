@@ -10,23 +10,25 @@ var App = {
     FormView.initialize();
     RoomsView.initialize();
     MessagesView.initialize();
-    Friends.initialize();
 
     // Fetch initial batch of messages
     App.startSpinner();
     App.fetch(App.stopSpinner);
 
+
+    // Poll for new messages every 3 sec
+    setInterval(App.fetch, 3000);
   },
 
-  fetch: function(cb = () => {}) {
-    Parse.readAll(data => {
-      cb(JSON.parse(data));
-    });
-  },
+  fetch: function(callback = ()=>{}) {
+    Parse.readAll((data) => {
 
-  load: function(msg, cb = () => {}) {
-    Parse.create(msg, () => {
-      cb(msg);
+      // Don't bother to update if we have no messages
+      if (!data.results || !data.results.length) { return; }
+      Rooms.update(data.results, RoomsView.render);
+      Messages.update(data.results, MessagesView.render);
+
+      callback();
     });
   },
 
