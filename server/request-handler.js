@@ -14,6 +14,38 @@ this file and include it in basic-server.js so that it actually works.
 var http = require('http');
 const { Readable } = require('stream');
 
+class ReadableStream extends Readable {
+  constructor(options) {
+    // Calls the stream.Readable(options) constructor
+    super(options);
+    this.messages = {
+      results: [
+        {
+          username: 'TestUserName',
+          roomname: 'TestRoomName',
+          text: 'TestText!!',
+          objectId: 0,
+        },
+      ],
+    };
+    this.objIDCounter = 0;
+  }
+
+  read() {
+    console.log(JSON.stringify(this.messages));
+    return JSON.stringify(this.messages);
+  }
+
+  update({ username, roomname, text }) {
+    this.objIDCounter++
+    let objectId = this.objIDCounter
+    this.messages.results.push({ username, roomname, text, objectId});
+    console.log(this.messages);
+  }
+}
+
+const NodeStream = new ReadableStream;
+
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -58,7 +90,6 @@ var requestHandler = function(request, response) {
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
 
-
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
@@ -74,18 +105,6 @@ var requestHandler = function(request, response) {
   //   } | request URL: ${request.url}`
   // );
 
-  class ReadableStream extends Readable {
-    constructor(options) {
-      // Calls the stream.Readable(options) constructor
-      super(options);
-    }
-
-    read() {}
-
-    update() {}
-  }
-
-  const NodeStream = new ReadableStream();
 
   //? things to account for:
   //! incorrect URL return a 404
@@ -97,33 +116,23 @@ var requestHandler = function(request, response) {
     if (request.method === 'GET') {
       //! GET requests return our messages object set statusCode to 200
       statusCode = 200;
-      response.writeHead(statusCode, headers);
-
+      // response.writeHead(statusCode, headers);
       // request.on('data', (chunk) => {
-      //   return chunk;
+      //   NodeStream.read();
       // });
     } else if (request.method === 'POST') {
       //! POST request add new data to our messages object set statusCode to 200
       statusCode = 201;
-      response.writeHead(statusCode, headers);
-
-      // request.on('data', (chunk) => {
-      //   console.log(chunk);
-      // });
+      // response.writeHead(statusCode, headers);
+      request.on('data', (chunk) => {
+        NodeStream.update(JSON.parse(chunk));
+      });
     }
   }
 
   response.writeHead(statusCode, headers);
-  const result = JSON.stringify({
-    results: [
-      {
-        username: 'TestUserName',
-        roomname: 'TestRoomName',
-        text: 'TestText!!',
-      },
-    ]
-  });
-  response.end(result);
+  response.end(NodeStream.read());
+  // NodeStream.read();
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -135,6 +144,5 @@ var requestHandler = function(request, response) {
 //
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
-
 
 exports.requestHandler = requestHandler;
