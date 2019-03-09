@@ -19,14 +19,7 @@ class ReadableStream extends Readable {
     // Calls the stream.Readable(options) constructor
     super(options);
     this.messages = {
-      results: [
-        {
-          username: 'TestUserName',
-          roomname: 'TestRoomName',
-          text: 'TestText!!',
-          objectId: 0,
-        },
-      ],
+      results: [],
     };
     this.objIDCounter = 0;
   }
