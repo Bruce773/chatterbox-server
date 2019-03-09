@@ -37,14 +37,14 @@ class ReadableStream extends Readable {
   }
 
   update({ username, roomname, text }) {
-    this.objIDCounter++
-    let objectId = this.objIDCounter
-    this.messages.results.push({ username, roomname, text, objectId});
+    this.objIDCounter++;
+    let objectId = this.objIDCounter;
+    this.messages.results.push({ username, roomname, text, objectId });
     console.log(this.messages);
   }
 }
 
-const NodeStream = new ReadableStream;
+const NodeStream = new ReadableStream();
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -104,7 +104,6 @@ var requestHandler = function(request, response) {
   //     request.method
   //   } | request URL: ${request.url}`
   // );
-
 
   //? things to account for:
   //! incorrect URL return a 404

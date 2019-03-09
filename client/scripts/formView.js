@@ -16,10 +16,10 @@ var FormView = {
       text: FormView.$form.find('#message').val(),
       roomname: Rooms.selected || 'lobby'
     };
-
+ 
     Parse.create(message, (data) => {
       _.extend(message, data);
-      Messages.add(message, MessagesView.render);
+      // Messages.add(message, MessagesView.render);
     });
   },
 
