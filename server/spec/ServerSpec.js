@@ -50,8 +50,9 @@ describe('Node Server Request Listener Function', function() {
 
   it('Should accept posts to /classes/messages', function() {
     var stubMsg = {
+      objectId: 1,
       username: 'Jono',
-      text: 'Do my bidding!'
+      text: 'Do my bidding!',
     };
     var req = new stubs.request('/classes/messages', 'POST', stubMsg);
     var res = new stubs.response();
@@ -64,15 +65,15 @@ describe('Node Server Request Listener Function', function() {
     // Testing for a newline isn't a valid test
     // TODO: Replace with with a valid test
     // expect(res._data).to.equal(JSON.stringify('\n'));
-    console.log(res._data);
-    expect(res._data.results[0]).to.equal.deep(stubMsg);
+    // console.log(res._data);
+    expect(JSON.parse(res._data).results[0]).to.deep.equal(stubMsg);
     expect(res._ended).to.equal(true);
   });
 
   it('Should respond with messages that were previously posted', function() {
     var stubMsg = {
       username: 'Jono',
-      text: 'Do my bidding!'
+      text: 'Do my bidding!',
     };
     var req = new stubs.request('/classes/messages', 'POST', stubMsg);
     var res = new stubs.response();
@@ -105,4 +106,21 @@ describe('Node Server Request Listener Function', function() {
     expect(res._ended).to.equal(true);
   });
 
+  it('Should accept OPTIONS request and return the appropriate reasponse', () => {
+    req = new stubs.request('/classes/messages', 'OPTIONS');
+    res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    var defaultCorsHeaders = {
+      'Content-Type': 'application/json',
+      'access-control-allow-origin': '*',
+      'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'access-control-allow-headers': 'content-type, accept',
+      'access-control-max-age': 10, // Seconds.
+    };
+
+    expect(res._responseCode).to.equal(200);
+    expect(res._headers).to.deep.equal(defaultCorsHeaders);
+  });
 });
